@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ماركت</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --accent: #f59e0b;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding-bottom: 40px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3a8a, #0f172a);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: var(--card);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 20px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .cat-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .cat-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .cat-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 15px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            background: #dbeafe;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+
+        .badge.low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 8px 0;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            background: var(--primary);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        .box {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card);
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th { background: var(--primary); color: white; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .qty-btn {
+            padding: 5px 10px;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 2px;
+        }
+
+        .delete-btn {
+            padding: 5px 10px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .print-btn {
+            padding: 6px 12px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🛒 ماركت</h1>
+        <p>تطوير المهندس : محمد حسام محمد</p>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('shop', this)">واجهة التسوق</button>
+            <button class="tab-btn" onclick="switchTab('inventory', this)">إدارة المخزون والتزويد</button>
+            <button class="tab-btn" onclick="switchTab('invoices', this)">سجل الفواتير</button>
+        </div>
+
+        <!-- 1. واجهة التسوق -->
+        <div id="shop" class="section active">
+            <div class="cat-bar">
+                <button class="cat-btn active" onclick="filterCat('الكل', this)">الكل</button>
+                <button class="cat-btn" onclick="filterCat('🔥 عروض وتخفيضات', this)">🔥 عروض وتخفيضات</button>
+                <button class="cat-btn" onclick="filterCat('🥦 خضروات وفواكه', this)">🥦 خضروات وفواكه</button>
+                <button class="cat-btn" onclick="filterCat('🧀 ألبان وأجبان', this)">🧀 ألبان وأجبان</button>
+                <button class="cat-btn" onclick="filterCat('🥤 مشروبات ومياه', this)">🥤 مشروبات ومياه</button>
+                <button class="cat-btn" onclick="filterCat('🍪 سناكس وحلويات', this)">🍪 سناكس وحلويات</button>
+                <button class="cat-btn" onclick="filterCat('🥩 لحوم ومجمدات', this)">🥩 لحوم ومجمدات</button>
+                <button class="cat-btn" onclick="filterCat('🧼 منظفات ورعاية', this)">🧼 منظفات ورعاية</button>
+                <button class="cat-btn" onclick="filterCat('🍞 المخبوزات', this)">🍞 المخبوزات</button>
+                <button class="cat-btn" onclick="filterCat('🥫 معلبات ومؤن', this)">🥫 معلبات ومؤن</button>
+                <button class="cat-btn" onclick="filterCat('🏠 أدوات منزلية', this)">🏠 أدوات منزلية</button>
+                <button class="cat-btn" onclick="filterCat('👶 رعاية الأطفال', this)">👶 رعاية الأطفال</button>
+            </div>
+
+            <div class="grid" id="products-grid"></div>
+
+            <div class="box">
+                <h3>🛒 سلة التسوق</h3>
+                <div id="cart-list" style="margin: 10px 0;">السلة فارغة حالياً.</div>
+                <h3 id="cart-total" style="color: var(--primary);">الإجمالي: 0 جنيه</h3>
+                <button class="btn" onclick="checkout()" style="background: var(--accent); margin-top: 15px;">إتمام الطلب وتصدير الفاتورة</button>
+            </div>
+        </div>
+
+        <!-- 2. إدارة المخزون -->
+        <div id="inventory" class="section">
+            <div class="box">
+                <h3>➕ إضافة منتج جديد للمخزن</h3>
+                <div class="form-group">
+                    <label>اسم المنتج:</label>
+                    <input type="text" id="add-name" placeholder="مثال: عرض 2 كيس شيبسي">
+                </div>
+                <div class="form-group">
+                    <label>القسم:</label>
+                    <select id="add-cat">
+                        <option value="🔥 عروض وتخفيضات">🔥 عروض وتخفيضات</option>
+                        <option value="🥦 خضروات وفواكه">🥦 خضروات وفواكه</option>
+                        <option value="🧀 ألبان وأجبان">🧀 ألبان وأجبان</option>
+                        <option value="🥤 مشروبات ومياه">🥤 مشروبات ومياه</option>
+                        <option value="🍪 سناكس وحلويات">🍪 سناكس وحلويات</option>
+                        <option value="🥩 لحوم ومجمدات">🥩 لحوم ومجمدات</option>
+                        <option value="🧼 منظفات ورعاية">🧼 منظفات ورعاية</option>
+                        <option value="🍞 المخبوزات">🍞 المخبوزات</option>
+                        <option value="🥫 معلبات ومؤن">🥫 معلبات ومؤن</option>
+                        <option value="🏠 أدوات منزلية">🏠 أدوات منزلية</option>
+                        <option value="👶 رعاية الأطفال">👶 رعاية الأطفال</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>السعر (جنيه):</label>
+                    <input type="number" id="add-price" placeholder="10">
+                </div>
+                <div class="form-group">
+                    <label>الكمية بالمخزن:</label>
+                    <input type="number" id="add-stock" placeholder="50">
+                </div>
+                <button class="btn" onclick="addNewProduct()">حفظ المنتج في المخزن</button>
+            </div>
+
+            <h3 style="margin-top: 25px;">📦 التحكم في كميات المخزون والحذف</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المنتج</th>
+                            <th>القسم</th>
+                            <th>السعر</th>
+                            <th>المخزن</th>
+                            <th>تعديل / حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 3. سجل الفواتير -->
+        <div id="invoices" class="section">
+            <h3>📜 سجل الفواتير المسجلة</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>رقم الفاتورة</th>
+                            <th>التاريخ</th>
+                            <th>تفاصيل الطلب</th>
+                            <th>الإجمالي</th>
+                            <th>طباعة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoices-table"></tbody>
+                </table>
+            </div>
+            <button class="btn" onclick="clearInvoices()" style="background: var(--danger); margin-top: 15px; width: auto;">مسح سجل الفواتير</button>
+        </div>
+    </div>
+    <script>
+        let products = JSON.parse(localStorage.getItem('mhm_final_prods')) || [
+            { id: 1, name: '🔥 عرض 2 شيبسي + عصير مجاناً', cat: '🔥 عروض وتخفيضات', price: 30, stock: 15 },
+            { id: 2, name: 'طماطم بلدي (كيلو)', cat: '🥦 خضروات وفواكه', price: 15, stock: 25 },
+            { id: 3, name: 'حليب كامل الدسم 1 لتر', cat: '🧀 ألبان وأجبان', price: 42, stock: 15 },
+            { id: 4, name: 'زجاجة مياه 1.5 لتر', cat: '🥤 مشروبات ومياه', price: 8, stock: 50 },
+            { id: 5, name: 'كيس شيبسي عائلي', cat: '🍪 سناكس وحلويات', price: 15, stock: 30 }
+        ];
+
+        let invoices = JSON.parse(localStorage.getItem('mhm_final_invs')) || [];
+        let cart = [];
+        let selectedCat = 'الكل';
+
+        function saveData() {
+            localStorage.setItem('mhm_final_prods', JSON.stringify(products));
+            localStorage.setItem('mhm_final_invs', JSON.stringify(invoices));
+        }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+
+            if (tabId === 'shop') renderShop();
+            if (tabId === 'inventory') renderInventory();
+            if (tabId === 'invoices') renderInvoices();
+        }
+
+        function filterCat(catName, btn) {
+            selectedCat = catName;
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderShop();
+        }
+
+        function renderShop() {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = '';
+
+            const filtered = selectedCat === 'الكل' ? products : products.filter(p => p.cat === selectedCat);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 20px;">لا توجد منتجات في هذا القسم.</p>';
+                return;
+            }
+
+            filtered.forEach(p => {
+                grid.innerHTML += `
+                    <div class="card">
+                        <div>
+                            <span class="badge ${p.stock <= 5 ? 'low' : ''}">المتاح: ${p.stock}</span>
+                            <h4 style="margin-bottom: 4px;">${p.name}</h4>
+                            <small style="color: #64748b;">${p.cat}</small>
+                            <div class="price">${p.price} جنيه</div>
+                        </div>
+                        <button class="btn" onclick="addToCart(${p.id})" ${p.stock <= 0 ? 'disabled' : ''}>
+                            ${p.stock > 0 ? '+ إضافة للسلة' : 'نفد من المخزن'}
+                        </button>
+                    </div>
+                `;
+            });
+            renderCart();
+        }
+
+        function addToCart(id) {
+            const prod = products.find(p => p.id === id);
+            const cartItem = cart.find(c => c.id === id);
+
+            if (cartItem) {
+                if (cartItem.qty < prod.stock) cartItem.qty++;
+                else alert('وصلت للحد الأقصى المتاح بالمخزن!');
+            } else {
+                cart.push({ id: prod.id, name: prod.name, price: prod.price, qty: 1 });
+            }
+            renderShop();
+        }
+
+        function renderCart() {
+            const list = document.getElementById('cart-list');
+            const totalEl = document.getElementById('cart-total');
+
+            if (cart.length === 0) {
+                list.innerHTML = 'السلة فارغة حالياً.';
+                totalEl.innerText = 'الإجمالي: 0 جنيه';
+                return;
+            }
+
+            let total = 0;
+            let html = '<ul style="list-style: none;">';
+            cart.forEach(item => {
+                let sum = item.price * item.qty;
+                total += sum;
+                html += `<li style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #eee;">
+                    <span>${item.name} (${item.qty}×)</span>
+                    <span><b>${sum} جنيه</b></span>
+                </li>`;
+            });
+            html += '</ul>';
+
+            list.innerHTML = html;
+            totalEl.innerText = `الإجمالي: ${total} جنيه`;
+        }
+
+        function checkout() {
+            if (cart.length === 0) return alert('السلة فارغة!');
+
+            cart.forEach(c => {
+                const prod = products.find(p => p.id === c.id);
+                if (prod) prod.stock -= c.qty;
+            });
+
+            const invId = 'INV-' + Math.floor(100000 + Math.random() * 900000);
+            const totalSum = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+
+            invoices.push({
+                id: invId,
+                date: new Date().toLocaleString('ar-EG'),
+                items: [...cart],
+                total: totalSum
+            });
+
+            saveData();
+            alert(`تم حفظ الفاتورة (${invId}) وخصم المبيعات من المخزن بنجاح!`);
+            cart = [];
+            renderShop();
+        }
+
+        function printInvoice(invId) {
+            const inv = invoices.find(i => i.id === invId);
+            if (!inv) return alert('الفاتورة غير موجودة!');
+            
+            let printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html lang="ar" dir="rtl">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>فاتورة ${inv.id}</title>
+                    <style>
+                        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; color: #1e293b; max-width: 400px; margin: auto; }
+                        h2, p { text-align: center; margin: 5px 0; }
+                        .details { margin: 15px 0; border-bottom: 2px dashed #cbd5e1; padding-bottom: 10px; }
+                        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                        th, td { padding: 8px; text-align: right; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
+                        th { background: #1e3a8a; color: white; }
+                        .total { font-size: 1.1rem; font-weight: bold; text-align: left; margin-top: 15px; }
+                    </style>
+                </head>
+                <body>
+                    <h2>🛒 محمد حسام ماركت</h2>
+                    <p>فاتورة مبيعات</p>
+                    <div class="details">
+                        <p><b>رقم الفاتورة:</b> ${inv.id}</p>
+                        <p><b>التاريخ:</b> ${inv.date}</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>المنتج</th>
+                                <th>الكمية</th>
+                                <th>السعر</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${inv.items.map(i => `
+                                <tr>
+                                    <td>${i.name}</td>
+                                    <td>${i.qty}</td>
+                                    <td>${i.price * i.qty} ج.م</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <div class="total">الإجمالي الكلي: ${inv.total} جنيه</div>
+                    <p style="margin-top: 30px; font-size: 0.8rem; color: #64748b;">شكراً لتعاملكم معنا!</p>
+                    <script>
+                        window.onload = function() { window.print(); }
+        
+
+            `);
+            printWindow.document.close();
+        }
+
+        function renderInventory() {
+            const tbody = document.getElementById('inventory-table');
+            tbody.innerHTML = '';
+            products.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${p.name}</b></td>
+                        <td>${p.cat}</td>
+                        <td>${p.price} ج.م</td>
+                        <td><span class="badge ${p.stock <= 5 ? 'low' : ''}">${p.stock}</span></td>
+                        <td>
+                            <button class="qty-btn" onclick="changeStock(${p.id}, 1)">+1 تزويد</button>
+                            <button class="qty-btn" onclick="changeStock(${p.id}, -1)">-1 تنقيص</button>
+                            <button class="delete-btn" onclick="deleteProduct(${p.id})">حذف</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function changeStock(id, amount) {
+            const prod = products.find(p => p.id === id);
+            if (prod) {
+                prod.stock += amount;
+                if (prod.stock < 0) prod.stock = 0;
+                saveData();
+                renderInventory();
+            }
+        }
+
+        function deleteProduct(id) {
+            if (confirm('حذف هذا المنتج نهائياً من المخزن؟')) {
+                products = products.filter(p => p.id !== id);
+                cart = cart.filter(c => c.id !== id);
+                saveData();
+                renderInventory();
+            }
+        }
+
+        function addNewProduct() {
+            const name = document.getElementById('add-name').value.trim();
+            const cat = document.getElementById('add-cat').value;
+            const price = parseFloat(document.getElementById('add-price').value);
+            const stock = parseInt(document.getElementById('add-stock').value);
+
+            if (!name || isNaN(price) || isNaN(stock)) return alert('يرجى إدخال البيانات كاملة وبشكل صحيح!');
+
+            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            products.push({ id: newId, name, cat, price, stock });
+            saveData();
+
+            alert('تم إضافة المنتج للمخزن بنجاح!');
+            document.getElementById('add-name').value = '';
+            document.getElementById('add-price').value = '';
+            document.getElementById('add-stock').value = '';
+            renderInventory();
+        }
+
+        function renderInvoices() {
+            const tbody = document.getElementById('invoices-table');
+            tbody.innerHTML = '';
+            if (invoices.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد فواتير بعد.</td></tr>';
+                return;
+            }
+            invoices.forEach(inv => {
+                let itemsList = '<ul style="margin-right:15px;">';
+                inv.items.forEach(i => {
+                    itemsList += `<li>${i.name} (${i.qty} قطع) - ${i.price} ج.م</li>`;
+                });
+                itemsList += '</ul>';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${inv.id}</b></td>
+                        <td>${inv.date}</td>
+                        <td>${itemsList}</td>
+                        <td><b style="color:var(--primary);">${inv.total} جنيه</b></td>
+                        <td>
+                            <button class="print-btn" onclick="printInvoice('${inv.id}')">🖨️ طباعة</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function clearInvoices() {
+            if (confirm('مسح جميع الفواتير المحفوظة؟')) {
+                invoices = [];
+                saveData();
+                renderInvoices();
+            }
+        }
+
+        renderShop();
+    </script>
+</body>
+</html>
